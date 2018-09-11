@@ -3,6 +3,10 @@
 # builder stage
 FROM ubuntu:16.04 as builder
 
+
+ARG BRANCH=v1.2.1
+ENV BRANCH=${BRANCH}
+
 RUN apt-get update && \
     apt-get --no-install-recommends --yes install \
         ca-certificates \
@@ -86,7 +90,7 @@ RUN git clone https://github.com/jedisct1/libsodium.git -b ${SODIUM_VERSION} \
     && make check \
     && make install
 
-RUN git clone https://github.com/X-CASH-official/X-CASH.git /src
+RUN git clone -b $BRANCH https://github.com/X-CASH-official/X-CASH.git /src
 
 WORKDIR /src
 #COPY . .
