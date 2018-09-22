@@ -3,6 +3,10 @@
 # builder stage
 FROM ubuntu:16.04 as builder
 
+# BUILD_DATE and VCS_REF are immaterial, since this is a 2-stage build, but our build
+# hook won't work unless we specify the args
+ARG BUILD_DATE
+ARG VCS_REF
 
 ARG BRANCH=v1.2.1
 ENV BRANCH=${BRANCH}
