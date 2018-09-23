@@ -3,6 +3,10 @@
 # builder stage
 FROM ubuntu:16.04 as builder
 
+# BUILD_DATE and VCS_REF are immaterial, since this is a 2-stage build, but our build
+# hook won't work unless we specify the args
+ARG BUILD_DATE
+ARG VCS_REF
 
 ARG BRANCH=v1.2.1
 ENV BRANCH=${BRANCH}
@@ -101,6 +105,16 @@ RUN rm -rf build && \
 
 # runtime stage
 FROM ubuntu:16.04
+
+# Now we DO need these, for the auto-labeling of the image
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Good docker practice, plus we get microbadger badges
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/funkypenguin/x-cash.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.schema-version="2.2-r1"
 
 RUN apt-get update && \
     apt-get --no-install-recommends --yes install ca-certificates && \
