@@ -8,8 +8,9 @@ FROM ubuntu:16.04 as builder
 ARG BUILD_DATE
 ARG VCS_REF
 
-ARG BRANCH=v1.2.1
-ENV BRANCH=${BRANCH}
+# Allows us to auto-discover the latest release from the repo
+ARG REPO=X-CASH-official/X-CASH
+ENV REPO=${REPO}
 
 RUN apt-get update && \
     apt-get --no-install-recommends --yes install \
@@ -94,10 +95,11 @@ RUN git clone https://github.com/jedisct1/libsodium.git -b ${SODIUM_VERSION} \
     && make check \
     && make install
 
-RUN git clone -b $BRANCH https://github.com/X-CASH-official/X-CASH.git /src
+RUN TAG=$(curl -L --silent "https://api.github.com/repos/$REPO/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")') && \
+    echo git clone --branch $TAG https://github.com/$REPO /src && \
+    git clone --branch $TAG https://github.com/$REPO /src && \
 
 WORKDIR /src
-#COPY . .
 
 ARG NPROC
 RUN rm -rf build && \
@@ -131,7 +133,7 @@ VOLUME /root/.bitxcash
 # xcash-wallet-cli
 VOLUME /wallet
 
-EXPOSE 18080
-EXPOSE 18081
+EXPOSE 18280
+EXPOSE 18281
 
-ENTRYPOINT ["xcashd", "--p2p-bind-ip=0.0.0.0", "--p2p-bind-port=18080", "--rpc-bind-ip=0.0.0.0", "--rpc-bind-port=18081", "--non-interactive", "--confirm-external-bind"] 
+ENTRYPOINT ["xcashd", "--p2p-bind-ip=0.0.0.0", "--p2p-bind-port=18281", "--rpc-bind-ip=0.0.0.0", "--rpc-bind-port=18280", "--non-interactive", "--confirm-external-bind"] 
